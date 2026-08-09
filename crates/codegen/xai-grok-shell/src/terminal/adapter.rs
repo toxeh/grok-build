@@ -111,19 +111,17 @@ impl TrackedTask {
 
 pub(super) type TaskMap = Arc<Mutex<HashMap<String, TrackedTask>>>;
 
-fn wrap_command(command: &str) -> Result<String, ComputerError> {
+fn wrap_command(command: &str) -> (String, Vec<String>) {
     #[cfg(not(unix))]
     {
-        let _ = command;
-        Ok(command.to_string())
+        (command.to_string(), vec![])
     }
     #[cfg(unix)]
     {
-        let quoted = shlex::try_quote(command).map_err(|_| ComputerError::CommandNotQuoted)?;
-        Ok(format!(
-            "{} -lc {quoted}",
-            crate::terminal::default_shell_path()
-        ))
+        (
+            crate::terminal::default_shell_path().to_string(),
+            vec!["-lc".to_string(), command.to_string()]
+        )
     }
 }
 
@@ -161,12 +159,13 @@ impl AcpTerminalAdapter {
     async fn create_terminal(
         &self,
         command: String,
+        args: Vec<String>,
         request: &TerminalRunRequest,
     ) -> Result<acp::CreateTerminalResponse, ComputerError> {
         self.gateway
             .send(
                 acp::CreateTerminalRequest::new(self.session_id.clone(), command)
-                    .args(vec![])
+                    .args(args)
                     .env(to_env(request.env.clone()))
                     .cwd(Some(request.working_directory.clone()))
                     .output_byte_limit(Some(request.output_byte_limit as u64)),
@@ -183,8 +182,8 @@ impl AcpTerminalAdapter {
 #[async_trait::async_trait]
 impl TerminalBackend for AcpTerminalAdapter {
     async fn run(&self, request: TerminalRunRequest) -> Result<TerminalRunResult, ComputerError> {
-        let command = wrap_command(&request.command)?;
-        let create_res = self.create_terminal(command, &request).await?;
+        let (command, args) = wrap_command(&request.command);
+        let create_res = self.create_terminal(command, args, &request).await?;
 
         let timed_out = match tokio::time::timeout(
             request.timeout,
@@ -255,13 +254,13 @@ impl TerminalBackend for AcpTerminalAdapter {
         &self,
         request: TerminalRunRequest,
     ) -> Result<BackgroundHandle, ComputerError> {
-        let command = wrap_command(&request.command)?;
+        let (command, args) = wrap_command(&request.command);
         let notification_handle = request.notification_handle.clone();
         let display_command = request.display_command.clone();
         let cwd = request.working_directory.to_string_lossy().to_string();
         let output_file = request.output_file.clone();
 
-        let create_res = self.create_terminal(command.clone(), &request).await?;
+        let create_res = self.create_terminal(command, args, &request).await?;
         let task_id = create_res.terminal_id.0.to_string();
         let description = request.description;
 
@@ -270,7 +269,7 @@ impl TerminalBackend for AcpTerminalAdapter {
             tasks.insert(
                 task_id.clone(),
                 TrackedTask {
-                    command,
+                    command: request.command.clone(),
                     display_command,
                     cwd,
                     output_file: output_file.clone(),

@@ -25,18 +25,18 @@ fn out(output: &str, exit_code: Option<i32>, signal: Option<String>) -> Snapshot
 
 #[test]
 fn wrap_command_quotes_shell_metacharacters() {
-    let cmd = wrap_command("echo 'hello world' && ls").unwrap();
+    let (cmd, args) = wrap_command("echo 'hello world' && ls");
     #[cfg(unix)]
     {
         let shell = crate::terminal::default_shell_path();
-        assert!(
-            cmd.starts_with(&format!("{shell} -lc")),
-            "expected wrapped cmd to begin with `{shell} -lc`, got: {cmd}"
-        );
+        assert_eq!(cmd, shell);
+        assert_eq!(args, vec!["-lc".to_string(), "echo 'hello world' && ls".to_string()]);
     }
     #[cfg(not(unix))]
-    assert_eq!(cmd, "echo 'hello world' && ls");
-    assert!(cmd.contains("echo"));
+    {
+        assert_eq!(cmd, "echo 'hello world' && ls");
+        assert!(args.is_empty());
+    }
 }
 
 #[test]

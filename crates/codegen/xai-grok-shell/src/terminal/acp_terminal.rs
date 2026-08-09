@@ -17,18 +17,17 @@ impl AsyncTerminalRunner for AcpTerminalRunner {
         // On Windows the ACP client spawns with its own shell; sending the
         // raw command avoids the /bin/bash dependency.
         #[cfg(unix)]
-        let command = {
-            let quoted =
-                shlex::try_quote(&request.command).map_err(|_| TerminalError::CommandNotQuoted)?;
-            format!("{} -lc {}", super::default_shell_path(), quoted)
-        };
+        let (command, args) = (
+            super::default_shell_path().to_string(),
+            vec!["-lc".to_string(), request.command.clone()]
+        );
         #[cfg(not(unix))]
-        let command = request.command.clone();
+        let (command, args) = (request.command.clone(), vec![]);
         let create_res = self
             .gateway
             .send(
                 acp::CreateTerminalRequest::new(session_id.clone(), command)
-                    .args(vec![])
+                    .args(args)
                     .env(
                         request
                             .env
