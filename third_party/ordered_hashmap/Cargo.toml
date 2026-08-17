@@ -26,7 +26,7 @@
 #    on every upgrade.
 [package]
 name = "ordered_hashmap"
-version = "0.0.3"
+version = "0.2.998"
 edition = "2021"
 description = "Ordered HashMap preserving insertion order (vendored, library-only)"
 license = "Apache-2.0"

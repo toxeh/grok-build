@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target_name: grok-linux-x86_64
+          - os: macos-latest
+            target_name: grok-macos-aarch64
+    env:
+      CARGO_TARGET_DIR: target
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install DotSlash
+        run: cargo install dotslash
+
+      - name: Build binary
+        run: |
+          # Strip the leading 'v' if present for the version string
+          export GROK_VERSION="${GITHUB_REF_NAME#v}"
+          cargo build -p xai-grok-pager-bin --profile release-dist
+
+      - name: Rename and move binary
+        run: |
+          mkdir -p dist
+          cp target/release-dist/xai-grok-pager dist/${{ matrix.target_name }}
+          chmod +x dist/${{ matrix.target_name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target_name }}
+          path: dist/${{ matrix.target_name }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

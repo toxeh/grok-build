@@ -24,7 +24,7 @@ fn out(output: &str, exit_code: Option<i32>, signal: Option<String>) -> Snapshot
 }
 
 #[test]
-fn wrap_command_quotes_shell_metacharacters() {
+fn wrap_command_preserves_raw_command_in_args() {
     let (cmd, args) = wrap_command("echo 'hello world' && ls");
     #[cfg(unix)]
     {

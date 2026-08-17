@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ClaudeCodeTabState">
+    <option name="tabSessions">
+      <map>
+        <entry key="0">
+          <value>
+            <TabSessionState>
+              <option name="provider" value="gemini" />
+              <option name="sessionId" value="66fc865c-c065-421f-8e94-fcf764036faf" />
+              <option name="cwd" value="$PROJECT_DIR$" />
+              <option name="model" value="gemini-3.1-pro-high" />
+              <option name="permissionMode" value="bypassPermissions" />
+            </TabSessionState>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

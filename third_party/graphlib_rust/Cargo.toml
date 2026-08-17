@@ -21,7 +21,7 @@
 #  - No `unsafe`, no filesystem / env / network I/O in the vendored source.
 [package]
 name = "graphlib_rust"
-version = "0.0.2"
+version = "0.2.998"
 edition = "2021"
 description = "Dagre's graphlib in Rust (vendored, library-only)"
 license = "Apache-2.0"

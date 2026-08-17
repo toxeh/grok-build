@@ -1,7 +1,7 @@
 [package]
 license = "Apache-2.0"
 name = "xai-grok-shell-base"
-version = "0.1.0"
+version = "0.2.998"
 edition.workspace = true
 description = "Foundation modules for the grok shell crate family: environment presets, CPU profiling, and process/filesystem utilities."
 

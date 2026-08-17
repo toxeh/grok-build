@@ -1,7 +1,7 @@
 [package]
 license = "Apache-2.0"
 name = "xai-grok-sampler"
-version = "0.1.0"
+version = "0.2.998"
 edition.workspace = true
 description = "Actor-based sampling/inference layer for xAI grok (HTTP streaming + retry, no shell coupling)"
 

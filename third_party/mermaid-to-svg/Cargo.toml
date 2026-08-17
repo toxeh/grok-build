@@ -135,7 +135,7 @@
 #    workspace `serde_yaml`; it parses in-memory source only (no file/URL refs).
 [package]
 name = "mermaid-to-svg"
-version = "0.1.0"
+version = "0.2.998"
 edition = "2021"
 description = "Convert Mermaid diagram source to SVG via a dagre layout port (vendored, library-only)"
 license = "MIT"

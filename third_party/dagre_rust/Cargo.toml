@@ -33,7 +33,7 @@
 #    local modification 2), and no filesystem / env / network I/O in the source.
 [package]
 name = "dagre_rust"
-version = "0.0.5"
+version = "0.2.998"
 edition = "2021"
 description = "Dagre layout in Rust (vendored, library-only)"
 license = "Apache-2.0"
